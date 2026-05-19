@@ -10,7 +10,7 @@ import numpy as np
 import faiss
 from sentence_transformers import SentenceTransformer
 
-from src.config import BI_ENCODER_MODEL, DEVICE, BATCH_SIZE
+from src.config import BI_ENCODER_MODEL, DEVICE, BATCH_SIZE, USE_CUSTOM_TRANSFORMER
 from src.config  import INDEX_TYPE  # noqa: F401
 from src.indexer import build_index as _build_index
 
@@ -19,11 +19,19 @@ class BiEncoderRetriever:
     """First-stage retriever: fast embedding + FAISS similarity search."""
 
     def __init__(self):
-        print(f"  Loading bi-encoder: {BI_ENCODER_MODEL} on {DEVICE} …")
-        self.model = SentenceTransformer(BI_ENCODER_MODEL, device=DEVICE)
+        if USE_CUSTOM_TRANSFORMER:
+            from src.transformer import CustomTransformerEmbedder
+            print(f"  Loading custom from-scratch transformer on {DEVICE} …")
+            self.model = CustomTransformerEmbedder()
+            self.model.to(DEVICE)
+            self.dimension = 384  # Default d_model in our custom transformer
+        else:
+            print(f"  Loading bi-encoder: {BI_ENCODER_MODEL} on {DEVICE} …")
+            self.model = SentenceTransformer(BI_ENCODER_MODEL, device=DEVICE)
+            self.dimension = self.model.get_embedding_dimension()
+            
         self.index: faiss.Index = None
         self.documents: list = []
-        self.dimension: int = self.model.get_embedding_dimension()
 
     # ─── Encoding ─────────────────────────────────────────────────────────────
 

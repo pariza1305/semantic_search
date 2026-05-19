@@ -5,6 +5,7 @@ import os
 # ─── Model Configuration ────────────────────────────────────────────────────
 BI_ENCODER_MODEL = "all-MiniLM-L6-v2"                       # Fast embedding model (384-dim)
 CROSS_ENCODER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"  # Precision reranker
+USE_CUSTOM_TRANSFORMER = False                              # Set to True to use our from-scratch transformer
 
 # ─── Index Configuration ─────────────────────────────────────────────────────
 INDEX_TYPE = "IVF"          # "Flat" = exact brute-force | "IVF" = approximate (faster at scale)
